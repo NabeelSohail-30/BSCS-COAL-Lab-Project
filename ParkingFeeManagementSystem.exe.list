@@ -1,0 +1,548 @@
+EMU8086 GENERATED LISTING. MACHINE CODE <- SOURCE.
+ 
+ParkingFeeManagementSystem.exe -- emu8086 assembler version: 4.08  
+ 
+[ 30/12/2022  --  4:00:55 am ] 
+ 
+===================================================================================================
+[LINE]     LOC: MACHINE CODE                          SOURCE
+===================================================================================================
+ 
+[   1]        :                                       ;----------------Application Credits----------------
+[   2]        :                                       ;Parking Fee Management System
+[   3]        :                                       ;COAL Lab Final Project
+[   4]        :                                       ;Nabeel Sohail
+[   5]        :                                       ;2021F-BCS-211
+[   6]        :                                       ;Sec E Alpha
+[   7]        :                                       ;Intructor: Sir Faisal Yazdani
+[   8]        :                                       
+[   9]        :                                       
+[  10]        :                                       ;------------------------------Macros Start--------------------------
+[  11]        :                                       
+[  12]        :                                       ;Macro to clear screen
+[  13]        :                                       clrscr macro
+[  14]        :                                       ;code to clear screen
+[  15]        :                                       mov ah, 0h
+[  16]        :                                       mov al, 06h
+[  17]        :                                       mov bh, 07
+[  18]        :                                       mov cx, 0
+[  19]        :                                       mov dx, 184fh
+[  20]        :                                       int 10h
+[  21]        :                                       
+[  22]        :                                       ;call macro for cusrsor
+[  23]        :                                       cursor
+[  24]        :                                       endm
+[  25]        :                                       
+[  26]        :                                       ;macro to set cursor
+[  27]        :                                       cursor macro
+[  28]        :                                       ;set cursor position at top left
+[  29]        :                                       mov ah, 02h
+[  30]        :                                       mov bh, 0
+[  31]        :                                       mov dl, 0
+[  32]        :                                       mov dh, 0
+[  33]        :                                       int 10h
+[  34]        :                                       endm
+[  35]        :                                       
+[  36]        :                                       ;macro to print new line
+[  37]        :                                       newLine macro
+[  38]        :                                       mov ah, 02h
+[  39]        :                                       mov dl, 0dh
+[  40]        :                                       int 21h
+[  41]        :                                       mov dl, 0ah
+[  42]        :                                       int 21h
+[  43]        :                                       endm
+[  44]        :                                       
+[  45]        :                                       ;macro to exit program to dos
+[  46]        :                                       exitToDos macro
+[  47]        :                                       mov ah, 4ch
+[  48]        :                                       int 21h
+[  49]        :                                       endm
+[  50]        :                                       
+[  51]        :                                       ;------------------------------Macros Ends----------------------
+[  52]        :                                       
+[  53]        :                                       .model small    ;model directive
+[  54]        :                                       
+[  55]        :                                       ;initialize stack memory
+[  56]        :                                       .stack 100h
+[  57]        :                                       
+[  58]        :                                       ;------------------------------data segment starts--------------------------------
+[  59]        :                                       
+[  60]        :                                       ;data segment, all the variables are declared here
+[  61]        :                                       .data
+[  62]        :                                       
+[  63]        :                                       ;general prompts
+[  64]    0100: 59 6F 75 72 20 50 61 72 6B 69 6E 67   outPromt db "Your Parking Fee is: $"
+                20 46 65 65 20 69 73 3A 20 24       
+[  65]    0116: 45 6E 74 65 72 20 74 68 65 20 66 6F   inPrompt db "Enter the following details: $"
+                6C 6C 6F 77 69 6E 67 20 64 65 74 61 
+                69 6C 73 3A 20 24                   
+[  66]    0134: 50 61 72 6B 69 6E 67 20 46 65 65 20   appName db "Parking Fee Calculator$"
+                43 61 6C 63 75 6C 61 74 6F 72 24    
+[  67]    014B: 50 72 65 73 73 20 61 6E 79 20 6B 65   exitPrompt db "Press any key to exit...$"
+                79 20 74 6F 20 65 78 69 74 2E 2E 2E 
+                24                                  
+[  68]    0164: 54 68 61 6E 6B 20 79 6F 75 20 66 6F   thanksMsg db "Thank you for using the Parking Fee Calculator!$"
+                72 20 75 73 69 6E 67 20 74 68 65 20 
+                50 61 72 6B 69 6E 67 20 46 65 65 20 
+                43 61 6C 63 75 6C 61 74 6F 72 21 24 
+                                                    
+[  69]    0194: 50 72 65 73 73 20 61 6E 79 20 6B 65   continuePrompt db "Press any key to continue, Press 1 to exit the program: $"
+                79 20 74 6F 20 63 6F 6E 74 69 6E 75 
+                65 2C 20 50 72 65 73 73 20 31 20 74 
+                6F 20 65 78 69 74 20 74 68 65 20 70 
+                72 6F 67 72 61 6D 3A 20 24          
+[  70]        :                                       
+[  71]        :                                       ;input data prompts
+[  72]    01CD: 45 6E 74 65 72 20 74 68 65 20 61 72   arrivalPrompt db "Enter the arrival time (0-9): $"
+                72 69 76 61 6C 20 74 69 6D 65 20 28 
+                30 2D 39 29 3A 20 24                
+[  73]    01EC: 45 6E 74 65 72 20 74 68 65 20 64 65   departurePrompt db "Enter the departure time (0-9): $"
+                70 61 72 74 75 72 65 20 74 69 6D 65 
+                20 28 30 2D 39 29 3A 20 24          
+[  74]    020D: 45 6E 74 65 72 20 56 65 68 69 63 6C   vehiclePrompt db "Enter Vehicle Number: $"
+                65 20 4E 75 6D 62 65 72 3A 20 24    
+[  75]    0224: 45 6E 74 65 72 20 56 65 68 69 63 6C   typePrompt db "Enter Vehicle Type: $"
+                65 20 54 79 70 65 3A 20 24          
+[  76]        :                                       
+[  77]        :                                       ;output data prompts
+[  78]    0239: 59 6F 75 72 20 54 6F 74 61 6C 20 44   durationStr db "Your Total Duration: $"
+                75 72 61 74 69 6F 6E 3A 20 24       
+[  79]    024F: 56 65 68 69 63 6C 65 20 4E 75 6D 62   vehicleStr db "Vehicle Number: $"
+                65 72 3A 20 24                      
+[  80]    0260: 41 72 72 69 76 61 6C 20 54 69 6D 65   arrivalStr db "Arrival Time: $"
+                3A 20 24                            
+[  81]    026F: 44 65 70 61 72 74 75 72 65 20 54 69   departureStr db "Departure Time: $"
+                6D 65 3A 20 24                      
+[  82]    0280: 50 61 72 6B 69 6E 67 20 46 65 65 3A   feeStr db "Parking Fee: $"
+                20 24                               
+[  83]    028E: 56 65 68 69 63 6C 65 20 54 79 70 65   typestr db "Vehicle Type: $"
+                3A 20 24                            
+[  84]        :                                       
+[  85]        :                                       ;variables to hold input and output data
+[  86]    029D: 00 00                                 arrivalTime dw 0
+[  87]    029F: 00 00                                 departureTime dw 0
+[  88]    02A1: 24 24 24 24 24 24 24 24 24 24 24 24   type db 32 dup('$')
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24             
+[  89]    02C1: 24 24 24 24 24 24 24 24 24 24 24 24   vehicleNumber db 32 dup('$')
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24             
+[  90]    02E1: 00 00                                 duration dw 0
+[  91]    02E3: 05                                    hourlyRate db 5 ;five dollar per hour
+[  92]    02E4: 00 00                                 parkingfee dw 0
+[  93]    02E6: 00                                    op db ?
+[  94]        :                                       
+[  95]        :                                       ;------------------------------data segment ends--------------------------------
+[  96]        :                                       
+[  97]        :                                       
+[  98]        :                                       ;------------------------------code segment starts--------------------------------
+[  99]        :                                       .code
+[ 100]        :                                       
+[ 101]        :                                       ;------------------------------main proc start--------------------------------
+[ 102]    02F0:                                       app proc
+[ 103]        :                                       
+[ 104]        :                                       ;initialize data segment
+[ 105]    02F0: B8 10 00                              mov ax,@data
+[ 106]    02F3: 8E D8                                 mov ds,ax
+[ 107]        :                                       
+[ 108]        :                                       ;start label for the app
+[ 109]    02F5:                                       start:
+[ 110]        :                                       
+[ 111]        :                                       ;call clear screen macro
+[ 112]    02F5: B4 00 B0 06 B7 07 B9 00 00 BA 4F 18   clrscr
+                CD 10 B4 02 B7 00 B2 00 B6 00 CD 10 
+                                                    
+[ 113]        :                                       
+[ 114]        :                                       ;display app name
+[ 115]    030D: E8 22 02                              call displayAppName
+[ 116]        :                                       
+[ 117]        :                                       ;call newline macro
+[ 118]    0310: B4 02 B2 0D CD 21 B2 0A CD 21         newline
+[ 119]        :                                       
+[ 120]        :                                       ;call newline macro
+[ 121]    031A: B4 02 B2 0D CD 21 B2 0A CD 21         newline
+[ 122]        :                                       
+[ 123]        :                                       ;call procedure for input data
+[ 124]    0324: E8 7F 01                              call inputData
+[ 125]        :                                       
+[ 126]    0327: B4 01                                 mov ah, 1
+[ 127]    0329: CD 21                                 int 21h
+[ 128]        :                                       
+[ 129]        :                                       ;call macro for clrscr
+[ 130]    032B: B4 00 B0 06 B7 07 B9 00 00 BA 4F 18   clrscr
+                CD 10 B4 02 B7 00 B2 00 B6 00 CD 10 
+                                                    
+[ 131]        :                                       
+[ 132]        :                                       ;display app name
+[ 133]    0343: E8 EC 01                              call displayAppName
+[ 134]        :                                       
+[ 135]        :                                       ;call newline macro
+[ 136]    0346: B4 02 B2 0D CD 21 B2 0A CD 21         newline
+[ 137]        :                                       
+[ 138]        :                                       ;call newline macro
+[ 139]    0350: B4 02 B2 0D CD 21 B2 0A CD 21         newline
+[ 140]        :                                       
+[ 141]        :                                       ;call newline macro
+[ 142]    035A: B4 02 B2 0D CD 21 B2 0A CD 21         newline
+[ 143]        :                                       
+[ 144]        :                                       ;display data
+[ 145]    0364: E8 6F 00                              call displayData
+[ 146]        :                                       
+[ 147]        :                                       ;call new line macro
+[ 148]    0367: B4 02 B2 0D CD 21 B2 0A CD 21         newline
+[ 149]        :                                       
+[ 150]        :                                       ;call new line macro
+[ 151]    0371: B4 02 B2 0D CD 21 B2 0A CD 21         newline
+[ 152]        :                                       
+[ 153]        :                                       ;call new line macro
+[ 154]    037B: B4 02 B2 0D CD 21 B2 0A CD 21         newline
+[ 155]        :                                       
+[ 156]        :                                       ;call proc for continue
+[ 157]    0385: E8 37 00                              call continue
+[ 158]        :                                       
+[ 159]        :                                       ;validate exit option
+[ 160]    0388: 8A 1E E6 01                           mov bl, op
+[ 161]    038C: 80 FB 01                              cmp bl, 1
+[ 162]    038F: 75 03                                 jnz endProgram
+[ 163]    0391: E9 61 FF                              jmp start
+[ 164]        :                                       
+[ 165]    0394:                                       endProgram:
+[ 166]        :                                       ;prompt thanks msg
+[ 167]    0394: E8 04 00                              call thanks
+[ 168]        :                                       
+[ 169]        :                                       ;exit to dos macro
+[ 170]    0397: B4 4C CD 21                           exitToDos
+[ 171]        :                                       app endp
+[ 172]        :                                       
+[ 173]        :                                       ;------------------------------main proc ends--------------------------------
+[ 174]        :                                       
+[ 175]        :                                       
+[ 176]        :                                       ;------------------------------thanks proc ends--------------------------------
+[ 177]        :                                       
+[ 178]    039B:                                       thanks proc
+[ 179]        :                                       ;push into stack
+[ 180]    039B: 50                                    push ax
+[ 181]    039C: 53                                    push bx
+[ 182]    039D: 51                                    push cx
+[ 183]    039E: 52                                    push dx
+[ 184]        :                                       
+[ 185]        :                                       ;call new line macro
+[ 186]    039F: B4 02 B2 0D CD 21 B2 0A CD 21         newline
+[ 187]        :                                       
+[ 188]        :                                       ;call new line macro
+[ 189]    03A9: B4 02 B2 0D CD 21 B2 0A CD 21         newline
+[ 190]        :                                       
+[ 191]        :                                       ;display msg
+[ 192]    03B3: B4 09                                 mov ah, 9h
+[ 193]    03B5: BA 64 00                              lea dx, thanksMsg
+[ 194]    03B8: CD 21                                 int 21h
+[ 195]        :                                       
+[ 196]        :                                       ;pop from stack
+[ 197]    03BA: 5A                                    pop dx
+[ 198]    03BB: 59                                    pop cx
+[ 199]    03BC: 5B                                    pop bx
+[ 200]    03BD: 58                                    pop ax
+[ 201]        :                                       
+[ 202]    03BE: C3                                    ret
+[ 203]        :                                       thanks endp
+[ 204]        :                                       
+[ 205]        :                                       ;------------------------------thanks proc ends--------------------------------
+[ 206]        :                                       
+[ 207]        :                                       
+[ 208]        :                                       ;------------------------------continue proc ends--------------------------------
+[ 209]        :                                       
+[ 210]    03BF:                                       continue proc
+[ 211]        :                                       ;push into stack
+[ 212]    03BF: 50                                    push ax
+[ 213]    03C0: 53                                    push bx
+[ 214]    03C1: 51                                    push cx
+[ 215]    03C2: 52                                    push dx
+[ 216]        :                                       
+[ 217]        :                                       ;display msg
+[ 218]    03C3: B4 09                                 mov ah, 9h
+[ 219]    03C5: BA 94 00                              lea dx, continuePrompt
+[ 220]    03C8: CD 21                                 int 21h
+[ 221]        :                                       
+[ 222]        :                                       ;read character
+[ 223]    03CA: B4 01                                 mov ah, 1
+[ 224]    03CC: CD 21                                 int 21h
+[ 225]    03CE: A2 E6 01                              mov op, al
+[ 226]        :                                       
+[ 227]        :                                       ;pop from stack
+[ 228]    03D1: 5A                                    pop dx
+[ 229]    03D2: 59                                    pop cx
+[ 230]    03D3: 5B                                    pop bx
+[ 231]    03D4: 58                                    pop ax
+[ 232]        :                                       
+[ 233]    03D5: C3                                    ret
+[ 234]        :                                       continue endp
+[ 235]        :                                       
+[ 236]        :                                       ;------------------------------continue proc ends--------------------------------
+[ 237]        :                                       
+[ 238]        :                                       
+[ 239]        :                                       ;------------------------------display data proc start--------------------------------
+[ 240]        :                                       
+[ 241]    03D6:                                       displayData proc
+[ 242]        :                                       ;push into stack
+[ 243]    03D6: 50                                    push ax
+[ 244]    03D7: 53                                    push bx
+[ 245]    03D8: 51                                    push cx
+[ 246]    03D9: 52                                    push dx
+[ 247]        :                                       
+[ 248]        :                                       ;display vehicle number
+[ 249]    03DA: B4 09                                 mov ah, 9
+[ 250]    03DC: BA 4F 01                              lea dx, vehicleStr
+[ 251]    03DF: CD 21                                 int 21h
+[ 252]    03E1: B4 09                                 mov ah, 9
+[ 253]    03E3: BA C3 01                              lea dx, vehicleNumber+2
+[ 254]    03E6: CD 21                                 int 21h
+[ 255]        :                                       
+[ 256]        :                                       ;call newline macro
+[ 257]    03E8: B4 02 B2 0D CD 21 B2 0A CD 21         newline
+[ 258]        :                                       
+[ 259]        :                                       ;display vehicle type
+[ 260]    03F2: B4 09                                 mov ah, 9
+[ 261]    03F4: BA 8E 01                              lea dx, typestr
+[ 262]    03F7: CD 21                                 int 21h
+[ 263]    03F9: B4 09                                 mov ah, 9
+[ 264]    03FB: BA A3 01                              lea dx, type+2
+[ 265]    03FE: CD 21                                 int 21h
+[ 266]        :                                       
+[ 267]        :                                       ;call newline macro
+[ 268]    0400: B4 02 B2 0D CD 21 B2 0A CD 21         newline
+[ 269]        :                                       
+[ 270]        :                                       ;display arrival time
+[ 271]    040A: B4 09                                 mov ah, 9
+[ 272]    040C: BA 60 01                              lea dx, arrivalStr
+[ 273]    040F: CD 21                                 int 21h
+[ 274]    0411: 8B 1E 9D 01                           mov bx, arrivalTime
+[ 275]    0415: B4 02                                 mov ah, 2
+[ 276]    0417: 8A D7                                 mov dl, bh
+[ 277]    0419: CD 21                                 int 21h
+[ 278]    041B: 8A D3                                 mov dl, bl
+[ 279]    041D: CD 21                                 int 21h
+[ 280]        :                                       
+[ 281]        :                                       ;call newline macro
+[ 282]    041F: B4 02 B2 0D CD 21 B2 0A CD 21         newline
+[ 283]        :                                       
+[ 284]        :                                       ;display departure time
+[ 285]    0429: B4 09                                 mov ah, 9
+[ 286]    042B: BA 6F 01                              lea dx, departureStr
+[ 287]    042E: CD 21                                 int 21h
+[ 288]    0430: 8B 1E 9F 01                           mov bx, departureTime
+[ 289]    0434: B4 02                                 mov ah, 2
+[ 290]    0436: 8A D7                                 mov dl, bh
+[ 291]    0438: CD 21                                 int 21h
+[ 292]    043A: 8A D3                                 mov dl, bl
+[ 293]    043C: CD 21                                 int 21h
+[ 294]        :                                       
+[ 295]        :                                       ;call newline macro
+[ 296]    043E: B4 02 B2 0D CD 21 B2 0A CD 21         newline
+[ 297]        :                                       
+[ 298]        :                                       ;calculate total duration
+[ 299]    0448: A1 9F 01                              mov ax, departureTime
+[ 300]    044B: 2B 06 9D 01                           sub ax, arrivalTime
+[ 301]    044F: 3F                                    aas
+[ 302]    0450: 0D 30 30                              or ax, 3030h
+[ 303]    0453: A3 E1 01                              mov duration, ax
+[ 304]        :                                       
+[ 305]        :                                       ;display total duration
+[ 306]    0456: 8B 1E E1 01                           mov bx, duration
+[ 307]    045A: B4 09                                 mov ah, 9
+[ 308]    045C: BA 39 01                              lea dx, durationStr
+[ 309]    045F: CD 21                                 int 21h
+[ 310]    0461: B4 02                                 mov ah, 2
+[ 311]    0463: 8A D7                                 mov dl, bh
+[ 312]    0465: CD 21                                 int 21h
+[ 313]    0467: 8A D3                                 mov dl, bl
+[ 314]    0469: CD 21                                 int 21h
+[ 315]        :                                       
+[ 316]        :                                       ;call newline macro
+[ 317]    046B: B4 02 B2 0D CD 21 B2 0A CD 21         newline
+[ 318]        :                                       
+[ 319]        :                                       ;calculate total parking fee
+[ 320]    0475: A1 E1 01                              mov ax, duration
+[ 321]    0478: 8A 16 E3 01                           mov dl, hourlyRate
+[ 322]    047C: 25 0F 0F                              and ax, 0f0fh
+[ 323]    047F: 80 E2 0F                              and dl, 0fh
+[ 324]    0482: F6 E2                                 mul dl
+[ 325]    0484: D4 0A                                 aam
+[ 326]    0486: 0D 30 30                              or ax, 3030h
+[ 327]    0489: A3 E4 01                              mov parkingfee, ax
+[ 328]        :                                       
+[ 329]        :                                       ;display total parking fee
+[ 330]    048C: 8B 1E E4 01                           mov bx, parkingfee
+[ 331]    0490: B4 09                                 mov ah, 9
+[ 332]    0492: BA 80 01                              lea dx, feeStr
+[ 333]    0495: CD 21                                 int 21h
+[ 334]    0497: B4 02                                 mov ah, 2
+[ 335]    0499: 8A D7                                 mov dl, bh
+[ 336]    049B: CD 21                                 int 21h
+[ 337]    049D: 8A D3                                 mov dl, bl
+[ 338]    049F: CD 21                                 int 21h
+[ 339]        :                                       
+[ 340]        :                                       ;pop from stack
+[ 341]    04A1: 5A                                    pop dx
+[ 342]    04A2: 59                                    pop cx
+[ 343]    04A3: 5B                                    pop bx
+[ 344]    04A4: 58                                    pop ax
+[ 345]        :                                       
+[ 346]    04A5: C3                                    ret
+[ 347]        :                                       displayData endp
+[ 348]        :                                       
+[ 349]        :                                       ;------------------------------display data proc ends--------------------------------
+[ 350]        :                                       
+[ 351]        :                                       
+[ 352]        :                                       ;------------------------------input data proc start--------------------------------
+[ 353]        :                                       
+[ 354]    04A6:                                       inputData proc
+[ 355]        :                                       
+[ 356]        :                                       ;push reg into stack
+[ 357]    04A6: 50                                    push ax
+[ 358]    04A7: 53                                    push bx
+[ 359]    04A8: 51                                    push cx
+[ 360]    04A9: 52                                    push dx
+[ 361]        :                                       
+[ 362]        :                                       ;display prompt for input
+[ 363]    04AA: B4 09                                 mov ah, 9
+[ 364]    04AC: BA 16 00                              lea dx, inPrompt
+[ 365]    04AF: CD 21                                 int 21h
+[ 366]        :                                       
+[ 367]    04B1: B4 02 B2 0D CD 21 B2 0A CD 21         newLine
+[ 368]        :                                       
+[ 369]        :                                       ;vehicle number
+[ 370]    04BB: B4 09                                 mov ah, 9
+[ 371]    04BD: BA 0D 01                              lea dx, vehiclePrompt
+[ 372]    04C0: CD 21                                 int 21h
+[ 373]    04C2: B4 0A                                 mov ah, 0ah
+[ 374]    04C4: BA C1 01                              lea dx, vehicleNumber
+[ 375]    04C7: CD 21                                 int 21h
+[ 376]        :                                       
+[ 377]    04C9: B4 02 B2 0D CD 21 B2 0A CD 21         newLine
+[ 378]        :                                       
+[ 379]        :                                       ;vehicle type
+[ 380]    04D3: B4 09                                 mov ah, 9
+[ 381]    04D5: BA 24 01                              lea dx, typePrompt
+[ 382]    04D8: CD 21                                 int 21h
+[ 383]    04DA: B4 0A                                 mov ah, 0ah
+[ 384]    04DC: BA A1 01                              lea dx, type
+[ 385]    04DF: CD 21                                 int 21h
+[ 386]        :                                       
+[ 387]    04E1: B4 02 B2 0D CD 21 B2 0A CD 21         newLine
+[ 388]        :                                       
+[ 389]        :                                       ;input arrival time
+[ 390]    04EB: B4 09                                 mov ah, 9
+[ 391]    04ED: BA CD 00                              lea dx, arrivalPrompt
+[ 392]    04F0: CD 21                                 int 21h
+[ 393]    04F2: B4 01                                 mov ah, 1
+[ 394]    04F4: CD 21                                 int 21h
+[ 395]    04F6: 8A FC                                 mov bh, ah
+[ 396]    04F8: B4 01                                 mov ah, 1
+[ 397]    04FA: CD 21                                 int 21h
+[ 398]    04FC: 8A D8                                 mov bl, al
+[ 399]    04FE: 89 1E 9D 01                           mov arrivalTime, bx
+[ 400]        :                                       
+[ 401]    0502: B4 02 B2 0D CD 21 B2 0A CD 21         newLine
+[ 402]        :                                       
+[ 403]        :                                       ;input departure time
+[ 404]    050C: B4 09                                 mov ah, 9
+[ 405]    050E: BA EC 00                              lea dx, departurePrompt
+[ 406]    0511: CD 21                                 int 21h
+[ 407]    0513: B4 01                                 mov ah, 1
+[ 408]    0515: CD 21                                 int 21h
+[ 409]    0517: 8A FC                                 mov bh, ah
+[ 410]    0519: B4 01                                 mov ah, 1
+[ 411]    051B: CD 21                                 int 21h
+[ 412]    051D: 8A D8                                 mov bl, al
+[ 413]    051F: 89 1E 9F 01                           mov departureTime, bx
+[ 414]        :                                       
+[ 415]    0523: B4 02 B2 0D CD 21 B2 0A CD 21         newLine
+[ 416]        :                                       
+[ 417]        :                                       ;pop from stack
+[ 418]    052D: 5A                                    pop dx
+[ 419]    052E: 59                                    pop cx
+[ 420]    052F: 5B                                    pop bx
+[ 421]    0530: 58                                    pop ax
+[ 422]        :                                       
+[ 423]    0531: C3                                    ret
+[ 424]        :                                       
+[ 425]        :                                       inputData endp
+[ 426]        :                                       
+[ 427]        :                                       ;------------------------------input data proc ends--------------------------------
+[ 428]        :                                       
+[ 429]        :                                       
+[ 430]        :                                       ;------------------------------display app name proc start--------------------------------
+[ 431]        :                                       
+[ 432]    0532:                                       displayAppName proc
+[ 433]        :                                       
+[ 434]        :                                       ;push into stack
+[ 435]    0532: 50                                    push ax
+[ 436]    0533: 53                                    push bx
+[ 437]    0534: 51                                    push cx
+[ 438]    0535: 52                                    push dx
+[ 439]        :                                       
+[ 440]        :                                       ;dislay app name
+[ 441]    0536: B4 09                                 mov ah, 09h
+[ 442]    0538: BA 34 00                              lea dx, appName
+[ 443]    053B: CD 21                                 int 21h
+[ 444]        :                                       
+[ 445]        :                                       ;pop values from stack
+[ 446]    053D: 5A                                    pop dx
+[ 447]    053E: 59                                    pop cx
+[ 448]    053F: 5B                                    pop bx
+[ 449]    0540: 58                                    pop ax
+[ 450]        :                                       
+[ 451]    0541: C3                                    ret
+[ 452]        :                                       displayAppName endp
+[ 453]        :                                       
+[ 454]        :                                       ;------------------------------display app name proc ends--------------------------------
+[ 455]        :                                       
+[ 456]        :                                       end app
+[ 457]        :                                       
+[ 458]        :                                       ;------------------------------------end of code-------------------------------------
+[ 459]        :                                       
+ 
+===================================================================================================
+ 
+EXE HEADER - bytes from 0000 to 01FF inclusive.
+
+0000: 4D      -   exe signature (M)
+0001: 5A      -   exe signature (Z)
+0002: 42      -   bytes on last page (l.byte)
+0003: 01      -   bytes on last page (h.byte)
+0004: 04      -   512 byte pages in file (l.byte)
+0005: 00      -   512 byte pages in file (h.byte)
+0006: 01      -   relocations (l.byte)
+0007: 00      -   relocations (h.byte)
+0008: 20      -   paragraphs in header (l.byte)
+0009: 00      -   paragraphs in header (h.byte)
+000A: 00      -   minimum memory (l.byte)
+000B: 00      -   minimum memory (h.byte)
+000C: FF      -   maximum memory (l.byte)
+000D: FF      -   maximum memory (h.byte)
+000E: 00      -   SS - stack segment (l.byte)
+000F: 00      -   SS - stack segment (h.byte)
+0010: 00      -   SP - stack pointer (l.byte)
+0011: 01      -   SP - stack pointer (h.byte)
+0012: A0      -   check sum (l.byte)
+0013: 48      -   check sum (h.byte)
+0014: 00      -   IP - instruction pointer (l.byte)
+0015: 00      -   IP - instruction pointer (h.byte)
+0016: 2F      -   CS - code segment (l.byte)
+0017: 00      -   CS - code segment (h.byte)
+0018: 1E      -   relocation table adress (l.byte)
+0019: 00      -   relocation table adress (h.byte)
+001A: 00      -   overlay number (l.byte)
+001B: 00      -   overlay number (h.byte)
+001C: 01      -   signature (l.byte)
+001D: 00      -   signature (h.byte)
+001E: 01      -   relocation table - offset inside segment (l.byte)
+001F: 00      -   relocation table - offset inside segment (h.byte)
+0020: 2F      -   relocation table - segment anchor (l.byte)
+0021: 00      -   relocation table - segment anchor (h.byte)
+0022 to 01FF  -   reserved relocation area  (00) 
+
+
+
+
+===================================================================================================

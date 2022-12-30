@@ -1,0 +1,43 @@
+< THE SYMBOL TABLE >  ParkingFeeManagementSystem.exe  --  emu8086 assembler version: 4.08 
+===================================================================================================
+Name                     	Offset    	Size      	Type      	Segment   
+===================================================================================================
+STACK                    	00000     	-5        	SEGMENT   	(ITSELF)  
+DATA                     	00010     	-5        	SEGMENT   	(ITSELF)  
+OUTPROMT                 	00000     	1         	VAR       	data      
+INPROMPT                 	00016     	1         	VAR       	data      
+APPNAME                  	00034     	1         	VAR       	data      
+EXITPROMPT               	0004B     	1         	VAR       	data      
+THANKSMSG                	00064     	1         	VAR       	data      
+CONTINUEPROMPT           	00094     	1         	VAR       	data      
+ARRIVALPROMPT            	000CD     	1         	VAR       	data      
+DEPARTUREPROMPT          	000EC     	1         	VAR       	data      
+VEHICLEPROMPT            	0010D     	1         	VAR       	data      
+TYPEPROMPT               	00124     	1         	VAR       	data      
+DURATIONSTR              	00139     	1         	VAR       	data      
+VEHICLESTR               	0014F     	1         	VAR       	data      
+ARRIVALSTR               	00160     	1         	VAR       	data      
+DEPARTURESTR             	0016F     	1         	VAR       	data      
+FEESTR                   	00180     	1         	VAR       	data      
+TYPESTR                  	0018E     	1         	VAR       	data      
+ARRIVALTIME              	0019D     	2         	VAR       	data      
+DEPARTURETIME            	0019F     	2         	VAR       	data      
+TYPE                     	001A1     	1         	VAR       	data      
+VEHICLENUMBER            	001C1     	1         	VAR       	data      
+DURATION                 	001E1     	2         	VAR       	data      
+HOURLYRATE               	001E3     	1         	VAR       	data      
+PARKINGFEE               	001E4     	2         	VAR       	data      
+OP                       	001E6     	1         	VAR       	data      
+CODE                     	0002F     	-5        	SEGMENT   	(ITSELF)  
+APP                      	00000     	-1        	NEAR      	code      
+START                    	00005     	-1        	LABEL     	code      
+ENDPROGRAM               	000A4     	-1        	LABEL     	code      
+THANKS                   	000AB     	-1        	NEAR      	code      
+CONTINUE                 	000CF     	-1        	NEAR      	code      
+DISPLAYDATA              	000E6     	-1        	NEAR      	code      
+INPUTDATA                	001B6     	-1        	NEAR      	code      
+DISPLAYAPPNAME           	00242     	-1        	NEAR      	code      
+===================================================================================================
+[ 30/12/2022  --  4:00:55 am ] 
+< END >
+ 
